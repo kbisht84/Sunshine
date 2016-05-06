@@ -1,9 +1,11 @@
 package com.example.kanakb.sunshine;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.text.format.Time;
 import android.util.Log;
@@ -29,8 +31,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Created by KANAK#B on  4/21/2016.
@@ -47,6 +47,7 @@ public class ForecastFragment extends Fragment {
     public void onCreate(Bundle savedInstance){
         super.onCreate(savedInstance);
         setHasOptionsMenu(true);
+        updateWeather();
 
     }
 
@@ -61,9 +62,16 @@ public class ForecastFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item){
         int id= item.getItemId();
         if(id==R.id.action_refresh){
-           new  FetchWeatherTask().execute("91411");
+           updateWeather();
         }
         return super.onOptionsItemSelected(item);
+
+    }
+
+    private void updateWeather(){
+        SharedPreferences prefs= PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String location =prefs.getString(getString(R.string.pref_location_key),getString(R.string.pref_location_default));
+        new  FetchWeatherTask().execute(location);
 
     }
 
@@ -72,14 +80,12 @@ public class ForecastFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
         //Creating fake data
-        String[] forecastArray = {"Today-Sunny-88/63", "Tomorrow-foggy-70/46", "Weds-Cloudy-72/63", "Thurs-Rainy-64/51", "Fri-Foggy-70/50", "Sat-Sunny-80/60"};
 
         //convert it into list
-        List<String> weekForecast = new ArrayList<>(Arrays.asList(forecastArray));
 
 
         //Initialize array
-        arrayListAdapter = new ArrayAdapter<>(getActivity(), R.layout.list_item_forecast, R.id.list_item_forecast_textview, weekForecast);
+        arrayListAdapter = new ArrayAdapter<>(getActivity(), R.layout.list_item_forecast, R.id.list_item_forecast_textview, new ArrayList<String>());
 
         //Bind list view with adapter
         ListView listView = (ListView) rootView.findViewById(R.id.listView_forecast);
@@ -128,6 +134,20 @@ public class ForecastFragment extends Fragment {
          */
         private String formatHighLows(double high, double low) {
             // For presentation, assume the user doesn't care about tenths of a degree.
+
+            SharedPreferences sharedPrefs =
+                    PreferenceManager.getDefaultSharedPreferences(getActivity());
+            String unitType = sharedPrefs.getString(
+                    getString(R.string.pref_units_key),
+                    getString(R.string.pref_units_metric));
+
+            if (unitType.equals(getString(R.string.pref_units_imperial))) {
+                high = (high * 1.8) + 32;
+                low = (low * 1.8) + 32;
+            } else if (!unitType.equals(getString(R.string.pref_units_metric))) {
+                Log.d(LOG_TAG, "Unit type not found: " + unitType);
+            }
+
             long roundedHigh = Math.round(high);
             long roundedLow = Math.round(low);
 
