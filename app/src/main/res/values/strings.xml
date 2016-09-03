@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:xliff="http://schemas.android.com/apk/res-auto">
     <string name="app_name">Sunshine</string>
 
     <string name="action_refresh" translatable="false">Refresh</string>
@@ -14,9 +14,12 @@
     <string name="action_share">Share</string>
     <string name="pref_units_key">units</string>
     <string name="pref_units_metric">metric</string>
-
+    <string name="today">Today</string>
+    <string name="tomorrow">Tomorrow</string>
+    <string name="format_full_friendly_date"><xliff:g id="month">%1$s</xliff:g>, <xliff:g id="day">%2$s</xliff:g></string>
     <!-- Label for metric option in temperature unit preference [CHAR LIMIT=25] -->
     <string name="pref_units_label_metric">Metric</string>
+
 
     <!-- Label for imperial option in temperature unit preference [CHAR LIMIT=25] -->
     <string name="pref_units_label_imperial">Imperial</string>
