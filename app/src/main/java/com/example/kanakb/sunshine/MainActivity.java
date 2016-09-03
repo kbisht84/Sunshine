@@ -15,13 +15,15 @@ import android.view.MenuItem;
 public class MainActivity extends AppCompatActivity {
 
     private final String LOG_TAG=MainActivity.class.getSimpleName();
+    private final String FORECASTFRAGMENT_TAG = "FFTAG";
+    private String mLocation;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction().add(R.id.container, new ForecastFragment()).commit();
+            getSupportFragmentManager().beginTransaction().add(R.id.container, new ForecastFragment(), FORECASTFRAGMENT_TAG).commit();
 
         }
     }
@@ -57,12 +59,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void openPreferrredLocationInMap(){
-        SharedPreferences sharedPrefs =
-                PreferenceManager.getDefaultSharedPreferences(this);
-        String location = sharedPrefs.getString(
-                getString(R.string.pref_location_key),
-                getString(R.string.pref_location_default));
+//        SharedPreferences sharedPrefs =
+//                PreferenceManager.getDefaultSharedPreferences(this);
+//        String location = sharedPrefs.getString(
+//                getString(R.string.pref_location_key),
+//                getString(R.string.pref_location_default));
 
+        String location = Utility.getPreferredLocation(this);
         Uri geoLocation=Uri.parse("geo:0,0?").buildUpon().appendQueryParameter("q", location).build();
         //Implicit intent call
         Intent intent =new Intent(Intent.ACTION_VIEW);
@@ -76,6 +79,19 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
+    @Override
+        protected void onResume() {
+                super.onResume();
+                String location = Utility.getPreferredLocation( this );
+                // update the location in our second pane using the fragment manager
+                        if (location != null && !location.equals(mLocation)) {
+                        ForecastFragment ff = (ForecastFragment)getSupportFragmentManager().findFragmentByTag(FORECASTFRAGMENT_TAG);
+                        if ( null != ff ) {
+                                ff.onLocationChanged();
+                            }
+                        mLocation = location;
+                   }
+            }
 
 
 
